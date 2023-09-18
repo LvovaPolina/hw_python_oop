@@ -61,13 +61,6 @@ class Running(Training):
     CALORIES_MEAN_SPEED_MULTIPLIER: int = 18
     CALORIES_MEAN_SPEED_SHIFT: float = 1.79
 
-    def __init__(self,
-                 action: int,
-                 duration: float,
-                 weight: float,
-                 ) -> None:
-        super().__init__(action, duration, weight)
-
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
         return ((self.CALORIES_MEAN_SPEED_MULTIPLIER * self.get_mean_speed()
@@ -77,8 +70,8 @@ class Running(Training):
 
 class SportsWalking(Training):
     """Тренировка: спортивная ходьба."""
-    CONSTANT_WALKING_1: float = 0.035
-    CONSTANT_WALKING_2: float = 0.029
+    WEIGHT_MULTIPLIER: float = 0.035
+    SQUARE_OF_AVERAGE_SPEED_AND_GROWTH: float = 0.029
     KH_IN_MS: float = 0.278
     SM_IN_M: int = 100
 
@@ -93,9 +86,10 @@ class SportsWalking(Training):
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        return ((self.CONSTANT_WALKING_1 * self.weight
+        return ((self.WEIGHT_MULTIPLIER * self.weight
                 + ((self.get_mean_speed() * self.KH_IN_MS) ** 2
-                   / (self.height / self.SM_IN_M)) * self.CONSTANT_WALKING_2
+                   / (self.height / self.SM_IN_M))
+                * self.SQUARE_OF_AVERAGE_SPEED_AND_GROWTH
                 * self.weight)
                 * self.duration * self.MIN_IN_H)
 
@@ -104,7 +98,7 @@ class Swimming(Training):
     """Тренировка: плавание."""
     LEN_STEP: float = 1.38
     CONSTANT_SWIMING_1: float = 1.1
-    CONSTANT_SWIMING_2: float = 2
+    CONSTANT_SWIMING_2: int = 2
 
     def __init__(self,
                  action: int,
@@ -130,17 +124,12 @@ class Swimming(Training):
 
 def read_package(workout_type: str, data: list) -> Training:
     """Прочитать данные полученные от датчиков."""
-    training_classes = {'SWM': Swimming,
-                        'RUN': Running,
-                        'WLK': SportsWalking}
-    if workout_type == 'SWM':
-        return training_classes[workout_type](data[0], data[1], data[2],
-                                              data[3], data[4])
-    if workout_type == 'RUN':
-        return training_classes[workout_type](data[0], data[1], data[2])
-    if workout_type == 'WLK':
-        return training_classes[workout_type](data[0], data[1], data[2],
-                                              data[3])
+    TRAINING_CLASSES: dict = {
+        'SWM': Swimming,
+        'RUN': Running,
+        'WLK': SportsWalking,
+    }
+    return TRAINING_CLASSES[workout_type](*data)
 
 
 def main(training: Training) -> None:
