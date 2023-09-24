@@ -97,8 +97,8 @@ class SportsWalking(Training):
 class Swimming(Training):
     """Тренировка: плавание."""
     LEN_STEP: float = 1.38
-    CONSTANT_SWIMING_1: float = 1.1
-    CONSTANT_SWIMING_2: int = 2
+    CALORIES_SWIMMING__FOR_AVG_SPEED: float = 1.1
+    CALORIES_SWIMMING: int = 2
 
     def __init__(self,
                  action: int,
@@ -118,16 +118,16 @@ class Swimming(Training):
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        return ((self.get_mean_speed() + self.CONSTANT_SWIMING_1)
-                * self.CONSTANT_SWIMING_2 * self.weight * self.duration)
+        return ((self.get_mean_speed() + self.CALORIES_SWIMMING__FOR_AVG_SPEED)
+                * self.CALORIES_SWIMMING * self.weight * self.duration)
 
 
 def read_package(workout_type: str, data: list) -> Training:
     """Прочитать данные полученные от датчиков."""
-    TRAINING_CLASSES: dict = {
-        'SWM': Swimming,
-        'RUN': Running,
-        'WLK': SportsWalking,
+    TRAINING_CLASSES: dict[str, str] = {
+        'SWM': 'Swimming',
+        'RUN': 'Running',
+        'WLK': 'SportsWalking',
     }
     return TRAINING_CLASSES[workout_type](*data)
 
